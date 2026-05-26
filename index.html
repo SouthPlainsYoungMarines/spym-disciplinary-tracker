@@ -1,0 +1,304 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Young Marines — Discipline Tracker</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f5f5f2;--bg3:#edecea;
+  --text:#1a1a1a;--text2:#55554f;--text3:#99998f;
+  --border:rgba(0,0,0,0.11);--border2:rgba(0,0,0,0.22);
+  --green-bg:#E1F5EE;--green-bd:#1D9E75;--green-tx:#085041;
+  --red-bg:#FCEBEB;--red-bd:#E24B4A;--red-tx:#791F1F;
+  --amber-bg:#FAEEDA;--amber-bd:#BA7517;--amber-tx:#633806;
+  --blue-bg:#E6F1FB;--blue-bd:#378ADD;--blue-tx:#0C447C;
+  --r:8px;--rl:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1c;--bg2:#2a2a27;--bg3:#313130;
+  --text:#f0f0ec;--text2:#aaaaa0;--text3:#66665c;
+  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.20);
+  --green-bg:#085041;--green-bd:#1D9E75;--green-tx:#9FE1CB;
+  --red-bg:#501313;--red-bd:#E24B4A;--red-tx:#F7C1C1;
+  --amber-bg:#412402;--amber-bd:#EF9F27;--amber-tx:#FAC775;
+  --blue-bg:#042C53;--blue-bd:#378ADD;--blue-tx:#B5D4F4;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg3);color:var(--text);min-height:100vh}
+.app{max-width:900px;margin:0 auto;padding:16px}
+.app-header{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 18px;margin-bottom:12px}
+input[type=date],input[type=text],select,textarea{font-family:inherit;font-size:13px;padding:6px 10px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-bd);box-shadow:0 0 0 2px rgba(55,138,221,0.15)}
+textarea{resize:vertical;min-height:60px;width:100%}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px}
+.stat{background:var(--bg);border-radius:var(--r);padding:10px 12px;text-align:center;border:0.5px solid var(--border)}
+.stat-n{font-size:22px;font-weight:600}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px}
+.mgr{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden}
+.mgr-head{padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.mgr-body{padding:12px 14px}
+.rule-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--border);font-size:13px;margin-bottom:4px}
+.rule-row .rl{flex:1}
+.rm-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;line-height:1;padding:0 2px;font-family:inherit}
+.rm-btn:hover{color:var(--red-bd)}
+.btn{font-size:13px;padding:7px 16px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:#185FA5;border-color:#185FA5;color:#fff}
+.btn.primary:hover{background:#0C447C}
+.btn.sm{font-size:12px;padding:4px 10px}
+.btn.danger{background:var(--red-bg);border-color:var(--red-bd);color:var(--red-tx)}
+.btn.resolved{background:var(--green-bg);border-color:var(--green-bd);color:var(--green-tx)}
+.add-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0}
+.add-bar input{flex:1;min-width:150px}
+.person-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:10px;overflow:hidden}
+.person-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);cursor:pointer;flex-wrap:wrap}
+.pname{font-size:13px;font-weight:500;flex:1}
+.rank-pill{font-size:11px;padding:2px 7px;border-radius:99px;background:var(--bg2);color:var(--text2);white-space:nowrap;border:0.5px solid var(--border)}
+.person-body{padding:12px 14px}
+.inc-form{background:var(--bg2);border-radius:var(--r);padding:12px;margin-bottom:12px;border:0.5px solid var(--border)}
+.inc-form h4{font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.ff label{font-size:11px;color:var(--text2);display:block;margin-bottom:3px}
+.ff input,.ff select,.ff textarea{width:100%}
+.ff.full{grid-column:1/-1}
+.inc-entry{background:var(--bg2);border-radius:var(--r);padding:10px 12px;margin-bottom:6px;border:0.5px solid var(--border)}
+.inc-entry.resolved{border-color:var(--green-bd);opacity:.7}
+.inc-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.inc-date{font-size:12px;color:var(--text2);white-space:nowrap}
+.inc-rule{font-size:13px;font-weight:500;flex:1}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.badge.c1{background:var(--amber-bg);color:var(--amber-tx)}
+.badge.c2{background:#FCEBEB;color:#791F1F}
+.badge.c3{background:#8B0000;color:#fff}
+.badge.res{background:var(--green-bg);color:var(--green-tx)}
+.badge.parent{background:var(--blue-bg);color:var(--blue-tx)}
+.inc-desc{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5}
+.inc-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.group-label{padding:4px 0 6px;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.empty{text-align:center;padding:1.5rem;color:var(--text2);font-size:13px}
+.save-bar{text-align:center;padding:14px 10px 10px;border-top:0.5px solid var(--border);margin-top:8px}
+.save-bar button{font-family:inherit;font-size:14px;font-weight:500;padding:10px 28px;border-radius:var(--r);border:none;background:#185FA5;color:#fff;cursor:pointer}
+.save-bar button:hover{background:#0C447C}
+.save-bar .unit-label{font-size:11px;color:var(--text3);margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="app-header">
+  <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Private — Staff Use Only</div>
+  <div style="font-size:18px;font-weight:600">Young Marines — Discipline Tracker</div>
+  <div style="font-size:12px;color:var(--text2);margin-top:2px">Rules • Policies • Incident log • Consequence tracking</div>
+</div>
+
+<div id="app"><div class="stats"><div class="stat"><div class="stat-n">10</div><div class="stat-l">Rules tracked</div></div><div class="stat"><div class="stat-n">2</div><div class="stat-l">Total incidents</div></div><div class="stat"><div class="stat-n">2</div><div class="stat-l">Active incidents</div></div><div class="stat"><div class="stat-n">2</div><div class="stat-l">Members with active</div></div></div><div class="mgr"><div class="mgr-head" onclick="toggleMgr()"><span>📚 Manage rules &amp; policies</span><span style="font-size:12px;color:var(--text2)">▼ Expand</span></div></div><div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text2)">Incident log per member</div><div class="group-label">Young Marines</div><div class="person-card"><div class="person-head" onclick="toggleExpand(1)"><span class="pname">Cuellar E</span><span class="rank-pill">YM/PVT</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(2)"><span class="pname">Cuellar S</span><span class="rank-pill">YM/PVT</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(3)"><span class="pname">Wilson</span><span class="rank-pill">YM/PVT</span><span class="badge c2">1 active</span><span style="font-size:12px;color:var(--text3);margin-left:auto">1 total •  ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(4)"><span class="pname">Cuellar</span><span class="rank-pill">YM/PFC</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(5)"><span class="pname">Cuellar</span><span class="rank-pill">YM/Cpl</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(6)"><span class="pname">Wilson</span><span class="rank-pill">YM/Cpl</span><span class="badge c2">1 active</span><span style="font-size:12px;color:var(--text3);margin-left:auto">1 total •  ▼</span></div></div><div class="group-label">Recruits</div><div class="person-card"><div class="person-head" onclick="toggleExpand(7)"><span class="pname">Rodriguez</span><span class="rank-pill">Recruit</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div><div class="person-card"><div class="person-head" onclick="toggleExpand(8)"><span class="pname">Garza</span><span class="rank-pill">Recruit</span><span style="font-size:12px;color:var(--text3)">No active incidents</span><span style="font-size:12px;color:var(--text3);margin-left:auto"> ▼</span></div></div></div>
+
+<div class="save-bar">
+  <button onclick="saveUpdatedFile()">⬇ Save Updated File</button>
+  <div class="unit-label">Staff use only — private</div>
+</div>
+
+</div>
+<script>
+var ROSTER=[
+  {id:1,name:'Cuellar E',rank:'YM/PVT',type:'ym'},
+  {id:2,name:'Cuellar S',rank:'YM/PVT',type:'ym'},
+  {id:3,name:'Wilson',   rank:'YM/PVT',type:'ym'},
+  {id:4,name:'Cuellar',  rank:'YM/PFC',type:'ym'},
+  {id:5,name:'Cuellar',  rank:'YM/Cpl',type:'ym'},
+  {id:6,name:'Wilson',   rank:'YM/Cpl',type:'ym'},
+  {id:7,name:'Rodriguez',rank:'Recruit',type:'recruit'},
+  {id:8,name:'Garza',    rank:'Recruit',type:'recruit'}
+];
+
+function load(){try{return JSON.parse(localStorage.getItem('ym_discipline')||'null')}catch(e){return null}}
+function save(){localStorage.setItem('ym_discipline',JSON.stringify(state))}
+
+/*STATE_START*/var state={"rules":[{"id":1,"label":"Always address adult staff and volunteers as \"Sir\" or \"Ma'am.\" Show respect to fellow Young Marines, instructors, and guests at all times. No bullying, harassment, discrimination, back talking, or poor attitude will be tolerated."},{"id":2,"label":"Follow all lawful orders given by staff, volunteers, and senior-ranking young Marines. No talking or moving while at Attention or in formation unless directed. Arrive on time for all scheduled drills and events."},{"id":3,"label":"Wear the correct uniform as assigned for each drill or activity. Uniforms must be clean, properly worn, and in good condition. Maintain proper grooming standards, including haircut regulations."},{"id":4,"label":"Always be honest and take responsibility for your actions. Do not take or use another Young Marine's gear or property without permission. If you make a mistake, own it and learn from the experience."},{"id":5,"label":"The Young Marines program is dedicated to a drug-free lifestyle. No Young Marine shall possess or use illegal drugs, alcohol, tobacco, or vaping products. Violations will result in disciplinary action, including dismissal."},{"id":6,"label":"Participate in all physical training activities to the best of your ability. Maintain a positive and determined attitude during all challenges. Report any injuries, illnesses, or concerns to an adult staff member immediately."},{"id":7,"label":"Phones must be turned off and place in the contraband box at every drill and activity. Smart watches may be worn in uniform, with the exception of PT, unless medically necessary. Proper documentation from a physician must be on file for approval. If anyone's smart watch becomes a distraction, all personal electronic devices will need to be turned off and placed in the contraband box at every drill and activity. All emergency calls must go through a staff member (youth to parent, parent to youth)."},{"id":8,"label":"Pay attention and actively participate in all lessons and activities, whether you know the information or not. Follow instructions immediately and without argument. Ask questions if you do not understand something."},{"id":9,"label":"Attendance at scheduled drills, events, and community service activities is mandatory unless excused by the Unit Commander. Notify staff in advance if you will be absent. Young Marines who miss multiple drills or events without notice may face disciplinary review."},{"id":10,"label":"Serve the community with pride and professionalism. Be a role model in and outside of the Young Marines program. Show initiative and take on responsibilities as you grow in leadership."}],"incidents":{"3":[{"id":3,"ruleId":9,"date":"2026-05-02","desc":"Was not aware that she would be missing drill. Did not complete Report an Absence Form and was marked unexcused. \n\n1st offense: A verbal warning is given to the Young Marine by an AV. The Young Marine is expected to adjust their behavior/action immediately.","consequenceNum":1,"resolved":false,"parentNotified":false,"parentNotifiedDate":""}],"6":[{"id":4,"ruleId":9,"date":"2026-05-02","desc":"Was not aware that he would be missing drill. Did not complete Report an Absence Form and was marked unexcused. \n\n1st offense: A verbal warning is given to the Young Marine by an AV. The Young Marine is expected to adjust their behavior/action immediately.","consequenceNum":1,"resolved":false,"parentNotified":false,"parentNotifiedDate":""}]},"expanded":{"1":false,"3":false,"6":false},"mgrOpen":false,"nextRuleId":11,"nextIncidentId":5};/*STATE_END*/
+
+// Merge with localStorage if available
+var saved=load();
+if(saved){
+  Object.keys(saved).forEach(function(k){state[k]=saved[k];});
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmt(d){if(!d)return'';try{var p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function ordinal(n){return n+(n===1?'st':n===2?'nd':n===3?'rd':'th')+' offense'}
+function badgeClass(n){return n===1?'badge c1':n===2?'badge c2':'badge c3'}
+
+function toggleMgr(){state.mgrOpen=!state.mgrOpen;save();render()}
+function addRule(){
+  var n=(document.getElementById('new-rule').value||'').trim();
+  if(!n){document.getElementById('new-rule').focus();return}
+  state.rules.push({id:state.nextRuleId++,label:n});
+  document.getElementById('new-rule').value='';
+  save();render();
+}
+function removeRule(id){
+  if(!confirm('Remove this rule? Existing incidents will still reference it.'))return;
+  state.rules=state.rules.filter(function(r){return r.id!==id});
+  save();render();
+}
+function toggleExpand(mid){state.expanded[mid]=!state.expanded[mid];save();render()}
+function getRuleName(ruleId){
+  var r=state.rules.filter(function(r){return r.id===ruleId})[0];
+  return r?r.label:'Unknown rule';
+}
+function addIncident(mid){
+  var ruleId=parseInt(document.getElementById('ir-'+mid).value)||0;
+  var date=document.getElementById('id-'+mid).value;
+  var desc=(document.getElementById('idesc-'+mid).value||'').trim();
+  var consNum=parseInt(document.getElementById('ic-'+mid).value)||1;
+  if(!ruleId||!date||!desc){alert('Please fill in the rule, date, and description.');return}
+  if(!state.incidents[mid])state.incidents[mid]=[];
+  state.incidents[mid].push({
+    id:state.nextIncidentId++,
+    ruleId:ruleId,date:date,desc:desc,
+    consequenceNum:consNum,resolved:false,
+    parentNotified:false,parentNotifiedDate:''
+  });
+  document.getElementById('id-'+mid).value='';
+  document.getElementById('idesc-'+mid).value='';
+  save();render();
+}
+function toggleResolved(mid,iid){
+  var inc=(state.incidents[mid]||[]).filter(function(i){return i.id===iid})[0];
+  if(inc){inc.resolved=!inc.resolved;save();render();}
+}
+function toggleParent(mid,iid){
+  var inc=(state.incidents[mid]||[]).filter(function(i){return i.id===iid})[0];
+  if(!inc)return;
+  inc.parentNotified=!inc.parentNotified;
+  inc.parentNotifiedDate=inc.parentNotified?new Date().toISOString().slice(0,10):'';
+  save();render();
+}
+function setParentDate(mid,iid,val){
+  var inc=(state.incidents[mid]||[]).filter(function(i){return i.id===iid})[0];
+  if(inc){inc.parentNotifiedDate=val;save();}
+}
+function deleteIncident(mid,iid){
+  if(!confirm('Permanently delete this incident record?'))return;
+  state.incidents[mid]=(state.incidents[mid]||[]).filter(function(i){return i.id!==iid});
+  save();render();
+}
+
+function render(){
+  var el=document.getElementById('app');if(!el)return;
+  var totalInc=ROSTER.reduce(function(a,m){return a+(state.incidents[m.id]||[]).length},0);
+  var totalActive=ROSTER.reduce(function(a,m){return a+(state.incidents[m.id]||[]).filter(function(i){return!i.resolved}).length},0);
+  var membersActive=ROSTER.filter(function(m){return(state.incidents[m.id]||[]).some(function(i){return!i.resolved})}).length;
+
+  var h='<div class="stats">'
+    +'<div class="stat"><div class="stat-n">'+state.rules.length+'</div><div class="stat-l">Rules tracked</div></div>'
+    +'<div class="stat"><div class="stat-n">'+totalInc+'</div><div class="stat-l">Total incidents</div></div>'
+    +'<div class="stat"><div class="stat-n">'+totalActive+'</div><div class="stat-l">Active incidents</div></div>'
+    +'<div class="stat"><div class="stat-n">'+membersActive+'</div><div class="stat-l">Members with active</div></div>'
+    +'</div>';
+
+  // Rules manager
+  h+='<div class="mgr"><div class="mgr-head" onclick="toggleMgr()">'
+    +'<span>&#128218; Manage rules &amp; policies</span>'
+    +'<span style="font-size:12px;color:var(--text2)">'+(state.mgrOpen?'&#9650; Collapse':'&#9660; Expand')+'</span>'
+    +'</div>';
+  if(state.mgrOpen){
+    h+='<div class="mgr-body">';
+    if(!state.rules.length)h+='<div style="font-size:13px;color:var(--text3);margin-bottom:10px">No rules added yet. Add your rules and policies below.</div>';
+    state.rules.forEach(function(rule){
+      h+='<div class="rule-row"><span class="rl">'+esc(rule.label)+'</span><button class="rm-btn" onclick="removeRule('+rule.id+')">&#x2715;</button></div>';
+    });
+    h+='<div class="add-bar" style="margin-top:8px">'
+      +'<input type="text" id="new-rule" placeholder="e.g. Disrespect to staff" onkeydown="if(event.key===\'Enter\')addRule()"/>'
+      +'<button class="btn primary" onclick="addRule()">+ Add rule</button>'
+      +'</div></div>';
+  }
+  h+='</div>';
+
+  h+='<div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text2)">Incident log per member</div>';
+
+  ['ym','recruit'].forEach(function(type){
+    var group=ROSTER.filter(function(m){return m.type===type});if(!group.length)return;
+    h+='<div class="group-label">'+(type==='ym'?'Young Marines':'Recruits')+'</div>';
+    group.forEach(function(m){
+      var incidents=state.incidents[m.id]||[];
+      var active=incidents.filter(function(i){return!i.resolved}).length;
+      var exp=!!state.expanded[m.id];
+      h+='<div class="person-card"><div class="person-head" onclick="toggleExpand('+m.id+')">'
+        +'<span class="pname">'+esc(m.name)+'</span>'
+        +'<span class="rank-pill">'+esc(m.rank)+'</span>'
+        +(active>0?'<span class="badge c2">'+active+' active</span>':'<span style="font-size:12px;color:var(--text3)">No active incidents</span>')
+        +'<span style="font-size:12px;color:var(--text3);margin-left:auto">'+(incidents.length?incidents.length+' total &bull; ':'')+' '+(exp?'&#9650;':'&#9660;')+'</span>'
+        +'</div>';
+
+      if(exp){
+        h+='<div class="person-body">';
+        // Log form
+        if(state.rules.length){
+          h+='<div class="inc-form"><h4>Log new incident</h4>'
+            +'<div class="form-grid">'
+            +'<div class="ff"><label>Rule / Policy broken</label>'
+            +'<select id="ir-'+m.id+'"><option value="0">Select a rule...</option>'
+            +state.rules.map(function(r){return'<option value="'+r.id+'">'+esc(r.label)+'</option>'}).join('')
+            +'</select></div>'
+            +'<div class="ff"><label>Date of incident</label><input type="date" id="id-'+m.id+'"/></div>'
+            +'<div class="ff"><label>Consequence level</label><select id="ic-'+m.id+'">'
+            +'<option value="1">1st offense</option><option value="2">2nd offense</option>'
+            +'<option value="3">3rd offense</option><option value="4">4th offense</option>'
+            +'<option value="5">5th offense</option></select></div>'
+            +'<div class="ff full"><label>Description of incident</label>'
+            +'<textarea id="idesc-'+m.id+'" placeholder="Describe what happened..."></textarea></div>'
+            +'</div>'
+            +'<button class="btn primary" onclick="addIncident('+m.id+')">+ Log incident</button></div>';
+        } else {
+          h+='<div style="font-size:13px;color:var(--text3);margin-bottom:12px">Add rules above before logging incidents.</div>';
+        }
+
+        // History
+        if(incidents.length){
+          h+='<div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Incident history</div>';
+          incidents.slice().sort(function(a,b){return a.date<b.date?1:-1}).forEach(function(inc){
+            h+='<div class="inc-entry'+(inc.resolved?' resolved':'')+'">'
+              +'<div class="inc-head">'
+              +'<span class="inc-date">'+fmt(inc.date)+'</span>'
+              +'<span class="inc-rule">'+esc(getRuleName(inc.ruleId))+'</span>'
+              +'<span class="'+badgeClass(inc.consequenceNum)+'">'+ordinal(inc.consequenceNum)+'</span>'
+              +(inc.resolved?'<span class="badge res">Resolved</span>':'')
+              +(inc.parentNotified?'<span class="badge parent">Parent notified '+fmt(inc.parentNotifiedDate)+'</span>':'')
+              +'</div>'
+              +'<div class="inc-desc">'+esc(inc.desc)+'</div>'
+              +'<div class="inc-actions">'
+              +'<button class="btn sm'+(inc.resolved?' resolved':'')+'" onclick="toggleResolved('+m.id+','+inc.id+')">'+(inc.resolved?'&#8635; Reopen':'&#10003; Mark resolved')+'</button>'
+              +'<button class="btn sm" onclick="toggleParent('+m.id+','+inc.id+')" style="'+(inc.parentNotified?'background:var(--green-bg);border-color:var(--green-bd);color:var(--green-tx)':'')+'">'
+              +(inc.parentNotified?'&#10003; Parent notified':'Notify parent')+'</button>'
+              +(inc.parentNotified?'<input type="date" value="'+esc(inc.parentNotifiedDate||'')+'" onchange="setParentDate('+m.id+','+inc.id+',this.value)" style="font-size:11px;padding:3px 6px;max-width:140px"/>':'')
+              +'<button class="btn sm danger" onclick="deleteIncident('+m.id+','+inc.id+')" style="margin-left:auto">Delete</button>'
+              +'</div></div>';
+          });
+        } else {
+          h+='<div class="empty">No incidents recorded yet.</div>';
+        }
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+  });
+
+  el.innerHTML=h;
+}
+
+function saveUpdatedFile(){
+  var html=document.documentElement.outerHTML;
+  var stateJson=JSON.stringify(state);
+  var si=html.indexOf('/*STATE_START*/');
+  var ei=html.indexOf('/*STATE_END*/');
+  if(si===-1||ei===-1){alert('Save error — please contact your AV.');return}
+  var updated=html.slice(0,si+'/*STATE_START*/'.length)+'var state='+stateJson+';'+html.slice(ei);
+  var blob=new Blob([updated],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='YoungMarines_DisciplineTracker.html';a.click();URL.revokeObjectURL(a.href);
+}
+
+render();
+</script>
+
+
+</body></html>
